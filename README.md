@@ -162,3 +162,4 @@ odds-scraper-app/
 MIT
 
 # TheEdge
+# Scoresense
