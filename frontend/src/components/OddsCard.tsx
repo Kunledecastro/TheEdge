@@ -1,5 +1,4 @@
-import React from 'react';
-import { Odds } from '../services/api';
+import type { Odds } from '../services/api';
 import ProbabilityIndicator from './ProbabilityIndicator';
 import { formatAmericanOdds } from '../utils/oddsUtils';
 

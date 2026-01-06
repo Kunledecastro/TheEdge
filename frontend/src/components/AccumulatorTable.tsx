@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Accumulator } from '../services/api';
+import { useState } from 'react';
+import type { Accumulator } from '../services/api';
 import ProbabilityIndicator from './ProbabilityIndicator';
-import { formatAmericanOdds, formatProbability } from '../utils/oddsUtils';
+import { formatAmericanOdds } from '../utils/oddsUtils';
 
 interface AccumulatorTableProps {
   accumulators: Accumulator[];

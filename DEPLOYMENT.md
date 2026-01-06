@@ -47,8 +47,9 @@ This guide covers deploying the Odds Scraper application to free hosting platfor
    - Click "New Project"
    - Select "Deploy from GitHub repo"
    - Choose your repository
-   - Set the root directory to `backend`
-   - Railway will automatically detect Node.js
+   - **IMPORTANT**: In the service settings, set the **Root Directory** to `backend`
+   - Railway will use the `nixpacks.toml` file for build configuration
+   - If Railway doesn't detect it automatically, ensure the root directory is set correctly
 
 3. **Configure Environment Variables**
    - In Railway project settings, add:

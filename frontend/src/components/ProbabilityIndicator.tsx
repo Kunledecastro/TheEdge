@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface ProbabilityIndicatorProps {
   probability: number;
   threshold?: number;

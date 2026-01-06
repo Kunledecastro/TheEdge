@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import FilterPanel from '../components/FilterPanel';
 import AccumulatorTable from '../components/AccumulatorTable';
@@ -8,7 +8,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { useStoredOdds, useFetchOdds, useSports } from '../hooks/useOdds';
 import { useStoredAccumulators, useBuildAccumulators } from '../hooks/useAccumulators';
-import { Accumulator, Odds } from '../services/api';
+import type { Accumulator } from '../services/api';
 
 const Dashboard: React.FC = () => {
   const queryClient = useQueryClient();

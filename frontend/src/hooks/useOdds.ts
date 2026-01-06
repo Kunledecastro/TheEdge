@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api, { Odds } from '../services/api';
+import api from '../services/api';
 
 export function useOdds(sport?: string) {
   return useQuery({

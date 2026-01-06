@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface FilterPanelProps {
   selectedSport: string;
   onSportChange: (sport: string) => void;
