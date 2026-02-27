@@ -12,18 +12,28 @@ class AccumulatorBuilderService {
     minSelections: number = 2,
     maxSelections: number = 4
   ): Accumulator[] {
-    // First, filter by 80% probability threshold (temporarily lowered to 40% for demo with mock data)
     const filteredOdds = probabilityCalculator.filterByProbability(oddsArray, 0.4);
 
     if (filteredOdds.length < minSelections) {
       return [];
     }
 
+    // Deduplicate: keep best odds per game+selection to limit combinatorial explosion
+    const bestByKey = new Map<string, Odds>();
+    for (const odd of filteredOdds) {
+      const key = `${odd.gameId}_${odd.selection}`;
+      const existing = bestByKey.get(key);
+      if (!existing || odd.americanOdds > existing.americanOdds) {
+        bestByKey.set(key, odd);
+      }
+    }
+    const deduped = Array.from(bestByKey.values()).slice(0, 50);
+
     const accumulators: Accumulator[] = [];
 
     // Generate combinations
-    for (let size = minSelections; size <= Math.min(maxSelections, filteredOdds.length); size++) {
-      const combinations = this.generateCombinations(filteredOdds, size);
+    for (let size = minSelections; size <= Math.min(maxSelections, deduped.length); size++) {
+      const combinations = this.generateCombinations(deduped, size);
       
       for (const combination of combinations) {
         // Ensure no duplicate games in the accumulator
@@ -55,24 +65,29 @@ class AccumulatorBuilderService {
   }
 
   /**
-   * Generate all combinations of a given size from an array
+   * Generate all combinations of a given size from an array (iterative to avoid stack overflow)
    */
   private generateCombinations<T>(array: T[], size: number): T[][] {
-    if (size === 0) return [[]];
-    if (array.length === 0) return [];
-
     const combinations: T[][] = [];
-    const [first, ...rest] = array;
+    const indices = Array.from({ length: size }, (_, i) => i);
+    const n = array.length;
 
-    // Combinations including first element
-    const withFirst = this.generateCombinations(rest, size - 1);
-    for (const combo of withFirst) {
-      combinations.push([first, ...combo]);
+    if (size > n) return [];
+
+    while (true) {
+      combinations.push(indices.map(i => array[i]));
+
+      let i = size - 1;
+      while (i >= 0 && indices[i] === n - size + i) {
+        i--;
+      }
+      if (i < 0) break;
+
+      indices[i]++;
+      for (let j = i + 1; j < size; j++) {
+        indices[j] = indices[j - 1] + 1;
+      }
     }
-
-    // Combinations excluding first element
-    const withoutFirst = this.generateCombinations(rest, size);
-    combinations.push(...withoutFirst);
 
     return combinations;
   }

@@ -2,44 +2,43 @@ import axios from 'axios';
 import { Odds } from '../models/Odds.model';
 import { americanToDecimal } from '../utils/oddsConverter';
 
+interface OddsApiOutcome {
+  name: string;
+  price: number;
+}
+
+interface OddsApiMarket {
+  key: string;
+  last_update: string;
+  outcomes: OddsApiOutcome[];
+}
+
+interface OddsApiBookmaker {
+  key: string;
+  title: string;
+  last_update: string;
+  markets: OddsApiMarket[];
+}
+
 interface OddsApiResponse {
+  id: string;
   sport_key: string;
-  sport_nice: string;
-  teams: string[];
-  commence_time: number;
+  sport_title: string;
+  commence_time: string;
   home_team: string;
-  sites: Array<{
-    site_key: string;
-    site_nice: string;
-    last_update: number;
-    odds: {
-      h2h?: number[];
-      h2h_lay?: number[];
-      spreads?: {
-        points: number[];
-        odds: number[];
-      };
-      totals?: {
-        points: number[];
-        odds: number[];
-      };
-    };
-  }>;
+  away_team: string;
+  bookmakers: OddsApiBookmaker[];
 }
 
 class OddsScraperService {
-  private apiKey: string;
   private baseUrl = 'https://api.the-odds-api.com/v4';
   private requestCount = 0;
   private monthlyLimit = 500; // Free tier limit
   private lastRequestTime = 0;
   private minRequestInterval = 1000; // 1 second between requests
 
-  constructor() {
-    this.apiKey = process.env.ODDS_API_KEY || '';
-    if (!this.apiKey) {
-      console.warn('ODDS_API_KEY not set. Using mock data mode.');
-    }
+  private get apiKey(): string {
+    return process.env.ODDS_API_KEY || '';
   }
 
   /**
@@ -100,51 +99,34 @@ class OddsScraperService {
     const odds: Odds[] = [];
 
     for (const game of data) {
-      const homeTeam = game.home_team || game.teams[0];
-      const awayTeam = game.teams.find(t => t !== homeTeam) || game.teams[1];
+      const homeTeam = game.home_team;
+      const awayTeam = game.away_team;
 
-      for (const site of game.sites) {
-        if (site.odds.h2h && site.odds.h2h.length >= 2) {
-          // Home win
-          odds.push({
-            gameId: `${game.sport_key}_${game.commence_time}`,
-            sport: game.sport_nice,
-            homeTeam,
-            awayTeam,
-            selection: 'home_win',
-            americanOdds: site.odds.h2h[0],
-            decimalOdds: americanToDecimal(site.odds.h2h[0]),
-            bookmaker: site.site_nice,
-            timestamp: new Date(site.last_update * 1000),
-          });
+      for (const bookmaker of game.bookmakers) {
+        const h2hMarket = bookmaker.markets.find(m => m.key === 'h2h');
+        if (!h2hMarket || h2hMarket.outcomes.length < 2) continue;
 
-          // Away win
-          odds.push({
-            gameId: `${game.sport_key}_${game.commence_time}`,
-            sport: game.sport_nice,
-            homeTeam,
-            awayTeam,
-            selection: 'away_win',
-            americanOdds: site.odds.h2h[1],
-            decimalOdds: americanToDecimal(site.odds.h2h[1]),
-            bookmaker: site.site_nice,
-            timestamp: new Date(site.last_update * 1000),
-          });
-
-          // Draw (if available)
-          if (site.odds.h2h.length >= 3) {
-            odds.push({
-              gameId: `${game.sport_key}_${game.commence_time}`,
-              sport: game.sport_nice,
-              homeTeam,
-              awayTeam,
-              selection: 'draw',
-              americanOdds: site.odds.h2h[2],
-              decimalOdds: americanToDecimal(site.odds.h2h[2]),
-              bookmaker: site.site_nice,
-              timestamp: new Date(site.last_update * 1000),
-            });
+        for (const outcome of h2hMarket.outcomes) {
+          let selection: string;
+          if (outcome.name === homeTeam) {
+            selection = 'home_win';
+          } else if (outcome.name === awayTeam) {
+            selection = 'away_win';
+          } else {
+            selection = 'draw';
           }
+
+          odds.push({
+            gameId: `${game.sport_key}_${game.commence_time}`,
+            sport: game.sport_title,
+            homeTeam,
+            awayTeam,
+            selection,
+            americanOdds: outcome.price,
+            decimalOdds: americanToDecimal(outcome.price),
+            bookmaker: bookmaker.title,
+            timestamp: new Date(bookmaker.last_update),
+          });
         }
       }
     }
