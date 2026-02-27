@@ -1,0 +1,38 @@
+{
+  "odds": [],
+  "accumulators": [],
+  "historicalStats": [
+    {
+      "team": "Manchester United",
+      "sport": "Soccer",
+      "winRate": 65,
+      "recentForm": "WWLWW",
+      "lastUpdated": "2026-02-27T08:10:59.391Z",
+      "id": 1772179859391
+    },
+    {
+      "team": "Liverpool",
+      "sport": "Soccer",
+      "winRate": 70,
+      "recentForm": "WLWWW",
+      "lastUpdated": "2026-02-27T08:10:59.391Z",
+      "id": 1772179859445
+    },
+    {
+      "team": "Lakers",
+      "sport": "Basketball",
+      "winRate": 60,
+      "recentForm": "WWLWL",
+      "lastUpdated": "2026-02-27T08:10:59.391Z",
+      "id": 1772179859485
+    },
+    {
+      "team": "Warriors",
+      "sport": "Basketball",
+      "winRate": 75,
+      "recentForm": "WWWWL",
+      "lastUpdated": "2026-02-27T08:10:59.391Z",
+      "id": 1772179859507
+    }
+  ]
+}
