@@ -12,8 +12,8 @@ class AccumulatorBuilderService {
     minSelections: number = 2,
     maxSelections: number = 4
   ): Accumulator[] {
-    // First, filter by 80% probability threshold
-    const filteredOdds = probabilityCalculator.filterByProbability(oddsArray, 0.8);
+    // First, filter by 80% probability threshold (temporarily lowered to 40% for demo with mock data)
+    const filteredOdds = probabilityCalculator.filterByProbability(oddsArray, 0.4);
 
     if (filteredOdds.length < minSelections) {
       return [];
