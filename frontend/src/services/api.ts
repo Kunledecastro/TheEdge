@@ -7,6 +7,7 @@ export interface Odds {
   homeTeam: string;
   awayTeam: string;
   selection: string;
+  point?: number;
   americanOdds: number;
   decimalOdds: number;
   bookmaker: string;

@@ -15,7 +15,7 @@ const OddsCard: React.FC<OddsCardProps> = ({
   onClick,
   selected = false,
 }) => {
-  const getSelectionLabel = (selection: string) => {
+  const getSelectionLabel = (selection: string, point?: number) => {
     switch (selection) {
       case 'home_win':
         return 'Home Win';
@@ -23,10 +23,16 @@ const OddsCard: React.FC<OddsCardProps> = ({
         return 'Away Win';
       case 'draw':
         return 'Draw';
+      case 'over':
+        return `Over ${point ?? ''}`;
+      case 'under':
+        return `Under ${point ?? ''}`;
       default:
         return selection.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
   };
+
+  const isOverUnder = odds.selection === 'over' || odds.selection === 'under';
 
   return (
     <div
@@ -45,8 +51,11 @@ const OddsCard: React.FC<OddsCardProps> = ({
           <div className="font-semibold text-sm text-gray-900 dark:text-white">
             {odds.homeTeam} vs {odds.awayTeam}
           </div>
-          <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-            {getSelectionLabel(odds.selection)}
+          <div className="text-sm text-gray-600 dark:text-gray-300 mt-1 flex items-center gap-1">
+            {isOverUnder && (
+              <span className={`inline-block w-2 h-2 rounded-full ${odds.selection === 'over' ? 'bg-green-500' : 'bg-red-500'}`} />
+            )}
+            {getSelectionLabel(odds.selection, odds.point)}
           </div>
         </div>
         {probability !== undefined && (

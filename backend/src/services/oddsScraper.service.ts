@@ -5,6 +5,7 @@ import { americanToDecimal } from '../utils/oddsConverter';
 interface OddsApiOutcome {
   name: string;
   price: number;
+  point?: number;
 }
 
 interface OddsApiMarket {
@@ -77,7 +78,7 @@ class OddsScraperService {
           params: {
             apiKey: this.apiKey,
             regions: 'us',
-            markets: 'h2h',
+            markets: 'h2h,totals',
             oddsFormat: 'american',
           },
         }
@@ -104,29 +105,49 @@ class OddsScraperService {
 
       for (const bookmaker of game.bookmakers) {
         const h2hMarket = bookmaker.markets.find(m => m.key === 'h2h');
-        if (!h2hMarket || h2hMarket.outcomes.length < 2) continue;
+        if (h2hMarket && h2hMarket.outcomes.length >= 2) {
+          for (const outcome of h2hMarket.outcomes) {
+            let selection: string;
+            if (outcome.name === homeTeam) {
+              selection = 'home_win';
+            } else if (outcome.name === awayTeam) {
+              selection = 'away_win';
+            } else {
+              selection = 'draw';
+            }
 
-        for (const outcome of h2hMarket.outcomes) {
-          let selection: string;
-          if (outcome.name === homeTeam) {
-            selection = 'home_win';
-          } else if (outcome.name === awayTeam) {
-            selection = 'away_win';
-          } else {
-            selection = 'draw';
+            odds.push({
+              gameId: `${game.sport_key}_${game.commence_time}`,
+              sport: game.sport_title,
+              homeTeam,
+              awayTeam,
+              selection,
+              americanOdds: outcome.price,
+              decimalOdds: americanToDecimal(outcome.price),
+              bookmaker: bookmaker.title,
+              timestamp: new Date(bookmaker.last_update),
+            });
           }
+        }
 
-          odds.push({
-            gameId: `${game.sport_key}_${game.commence_time}`,
-            sport: game.sport_title,
-            homeTeam,
-            awayTeam,
-            selection,
-            americanOdds: outcome.price,
-            decimalOdds: americanToDecimal(outcome.price),
-            bookmaker: bookmaker.title,
-            timestamp: new Date(bookmaker.last_update),
-          });
+        const totalsMarket = bookmaker.markets.find(m => m.key === 'totals');
+        if (totalsMarket && totalsMarket.outcomes.length >= 2) {
+          for (const outcome of totalsMarket.outcomes) {
+            const selection = outcome.name === 'Over' ? 'over' : 'under';
+
+            odds.push({
+              gameId: `${game.sport_key}_${game.commence_time}`,
+              sport: game.sport_title,
+              homeTeam,
+              awayTeam,
+              selection,
+              point: outcome.point,
+              americanOdds: outcome.price,
+              decimalOdds: americanToDecimal(outcome.price),
+              bookmaker: bookmaker.title,
+              timestamp: new Date(bookmaker.last_update),
+            });
+          }
         }
       }
     }
@@ -180,6 +201,54 @@ class OddsScraperService {
         selection: 'away_win',
         americanOdds: 110,
         decimalOdds: 2.1,
+        bookmaker: 'Mock Bookmaker',
+        timestamp: new Date(),
+      },
+      {
+        gameId: 'mock_1',
+        sport: 'Soccer',
+        homeTeam: 'Manchester United',
+        awayTeam: 'Liverpool',
+        selection: 'over',
+        point: 2.5,
+        americanOdds: -110,
+        decimalOdds: 1.91,
+        bookmaker: 'Mock Bookmaker',
+        timestamp: new Date(),
+      },
+      {
+        gameId: 'mock_1',
+        sport: 'Soccer',
+        homeTeam: 'Manchester United',
+        awayTeam: 'Liverpool',
+        selection: 'under',
+        point: 2.5,
+        americanOdds: -105,
+        decimalOdds: 1.95,
+        bookmaker: 'Mock Bookmaker',
+        timestamp: new Date(),
+      },
+      {
+        gameId: 'mock_2',
+        sport: 'Basketball',
+        homeTeam: 'Lakers',
+        awayTeam: 'Warriors',
+        selection: 'over',
+        point: 220.5,
+        americanOdds: -115,
+        decimalOdds: 1.87,
+        bookmaker: 'Mock Bookmaker',
+        timestamp: new Date(),
+      },
+      {
+        gameId: 'mock_2',
+        sport: 'Basketball',
+        homeTeam: 'Lakers',
+        awayTeam: 'Warriors',
+        selection: 'under',
+        point: 220.5,
+        americanOdds: -105,
+        decimalOdds: 1.95,
         bookmaker: 'Mock Bookmaker',
         timestamp: new Date(),
       },

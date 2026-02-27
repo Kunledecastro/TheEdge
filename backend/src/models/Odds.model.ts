@@ -4,7 +4,8 @@ export interface Odds {
   sport: string;
   homeTeam: string;
   awayTeam: string;
-  selection: string; // e.g., "home_win", "away_win", "over_2.5"
+  selection: string; // e.g., "home_win", "away_win", "draw", "over", "under"
+  point?: number; // total line for over/under markets (e.g., 2.5)
   americanOdds: number;
   decimalOdds: number;
   bookmaker: string;
