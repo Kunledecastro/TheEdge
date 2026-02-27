@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: odds-scraper-backend
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ODDS_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
